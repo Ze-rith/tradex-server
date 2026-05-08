@@ -15,6 +15,12 @@ tradex:
         1: ${TRADEX_MEMBER_AES_KEY_V1}
       hmac-key: ${TRADEX_MEMBER_HMAC_KEY}
 
+  instrument:
+    seed:
+      enabled: true
+      path: instruments/instruments-mock.json
+      skipIfNotEmpty: true
+
 spring:
   datasource:
     url: ${TRADEX_DB_URL}
