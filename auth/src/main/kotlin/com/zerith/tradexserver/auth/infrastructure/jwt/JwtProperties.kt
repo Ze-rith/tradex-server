@@ -9,6 +9,6 @@ class JwtProperties(
     val accessTtl: Duration,
     val refreshTtl: Duration,
     val keyId: String,
-    val privateKeyPem: String,
-    val publicKeyPem: String
+    val privateKeyPath: String,
+    val publicKeyPath: String
 )

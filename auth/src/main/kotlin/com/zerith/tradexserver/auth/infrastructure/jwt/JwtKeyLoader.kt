@@ -1,6 +1,8 @@
 package com.zerith.tradexserver.auth.infrastructure.jwt
 
 import org.springframework.stereotype.Component
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.security.KeyFactory
 import java.security.PrivateKey
 import java.security.PublicKey
@@ -14,17 +16,23 @@ class JwtKeyLoader(
 ) {
 
     fun loadPrivateKey(): PrivateKey {
-        val der = decodePem(jwtProperties.privateKeyPem, PRIVATE_HEADER, PRIVATE_FOOTER)
+        val pem = readPem(jwtProperties.privateKeyPath)
+        val der = decodePem(pem, PRIVATE_HEADER, PRIVATE_FOOTER)
         val keySpec = PKCS8EncodedKeySpec(der)
         val factory = KeyFactory.getInstance(ALGORITHM)
         return factory.generatePrivate(keySpec)
     }
 
     fun loadPublicKey(): PublicKey {
-        val der = decodePem(jwtProperties.publicKeyPem, PUBLIC_HEADER, PUBLIC_FOOTER)
+        val pem = readPem(jwtProperties.publicKeyPath)
+        val der = decodePem(pem, PUBLIC_HEADER, PUBLIC_FOOTER)
         val keySpec = X509EncodedKeySpec(der)
         val factory = KeyFactory.getInstance(ALGORITHM)
         return factory.generatePublic(keySpec)
+    }
+
+    private fun readPem(path: String): String {
+        return Files.readString(Paths.get(path))
     }
 
     private fun decodePem(
