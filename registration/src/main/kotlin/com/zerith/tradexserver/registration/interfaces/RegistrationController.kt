@@ -36,7 +36,7 @@ class RegistrationController(
             )
         )
         return BaseResponse.ok(
-            RegisterAccountResponse.of(userId.asString())
+            RegisterAccountResponse.of(userId.toString())
         )
     }
 }

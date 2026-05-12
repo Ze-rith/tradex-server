@@ -1,34 +1,35 @@
 package com.zerith.tradexserver.registration.application
 
-import com.zerith.tradexserver.auth.application.RegisterUserUseCase
-import com.zerith.tradexserver.auth.application.command.RegisterUserCommand
-import com.zerith.tradexserver.auth.domain.model.UserId
-import com.zerith.tradexserver.member.application.CreateMemberUseCase
-import com.zerith.tradexserver.member.application.command.CreateMemberCommand
 import com.zerith.tradexserver.registration.application.command.RegisterAccountCommand
+import com.zerith.tradexserver.registration.infrastructure.client.AuthServiceClient
+import com.zerith.tradexserver.registration.infrastructure.client.MemberServiceClient
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
+import java.util.UUID
 
 @Component
 class RegisterAccountUseCase(
-    private val registerUserUseCase: RegisterUserUseCase,
-    private val createMemberUseCase: CreateMemberUseCase
+    private val authServiceClient: AuthServiceClient,
+    private val memberServiceClient: MemberServiceClient
 ) {
 
-    @Transactional
-    fun execute(command: RegisterAccountCommand): UserId {
-        val userId = registerUserUseCase.execute(
-            RegisterUserCommand.of(command.email, command.rawPassword)
-        )
+    private val log = LoggerFactory.getLogger(RegisterAccountUseCase::class.java)
 
-        createMemberUseCase.execute(
-            CreateMemberCommand.of(
-                memberId = userId.value,
+    fun execute(command: RegisterAccountCommand): UUID {
+        val userId = authServiceClient.registerUser(command.email, command.rawPassword)
+
+        try {
+            memberServiceClient.createMember(
+                memberId = userId,
                 name = command.name,
                 birthDate = command.birthDate,
                 phoneNumber = command.phoneNumber
             )
-        )
+        } catch (e: Exception) {
+            log.warn("member creation failed; compensating by deleting userId={}", userId, e)
+            authServiceClient.deleteUser(userId)
+            throw e
+        }
 
         return userId
     }

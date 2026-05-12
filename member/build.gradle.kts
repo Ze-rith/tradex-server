@@ -1,5 +1,6 @@
 plugins {
     kotlin("plugin.jpa")
+    id("org.springframework.boot")
 }
 
 dependencies {
@@ -7,7 +8,11 @@ dependencies {
 
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+
+    implementation("org.flywaydb:flyway-core")
+    implementation("org.flywaydb:flyway-database-postgresql")
 
     runtimeOnly("org.postgresql:postgresql")
 }
@@ -16,4 +21,14 @@ allOpen {
     annotation("jakarta.persistence.Entity")
     annotation("jakarta.persistence.MappedSuperclass")
     annotation("jakarta.persistence.Embeddable")
+}
+
+tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+    enabled = true
+    mainClass.set("com.zerith.tradexserver.member.MemberApplicationKt")
+    archiveBaseName.set("tradex-member")
+}
+
+tasks.named<Jar>("jar") {
+    enabled = false
 }

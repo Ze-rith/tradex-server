@@ -1,19 +1,24 @@
-package com.zerith.tradexserver.auth.infrastructure.config
+package com.zerith.tradexserver.instrument.infrastructure.config
 
-import com.zerith.tradexserver.auth.interfaces.filter.JwtAuthenticationFilter
+import com.zerith.tradexserver.common.security.jwt.JwtAuthenticationFilter
+import com.zerith.tradexserver.common.security.jwt.JwtVerifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
 @Configuration
-class AuthSecurityConfig {
+class InstrumentSecurityConfig {
 
     @Bean
-    fun authSecurityFilterChain(
+    fun jwtAuthenticationFilter(jwtVerifier: JwtVerifier): JwtAuthenticationFilter {
+        return JwtAuthenticationFilter(jwtVerifier)
+    }
+
+    @Bean
+    fun instrumentSecurityFilterChain(
         http: HttpSecurity,
         jwtAuthenticationFilter: JwtAuthenticationFilter
     ): SecurityFilterChain {
@@ -36,9 +41,6 @@ class AuthSecurityConfig {
                 it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }
             .authorizeHttpRequests {
-                it.requestMatchers(HttpMethod.POST, "/api/v1/auth/sign-in").permitAll()
-                it.requestMatchers(HttpMethod.POST, "/api/v1/auth/reissue").permitAll()
-                it.requestMatchers("/internal/**").permitAll()
                 it.requestMatchers("/actuator/**").permitAll()
                 it.anyRequest().authenticated()
             }

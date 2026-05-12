@@ -1,0 +1,31 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: tradex-member
+  datasource:
+    url: ${TRADEX_DB_URL}
+    username: ${TRADEX_DB_USERNAME}
+    password: ${TRADEX_DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    schemas: member
+    default-schema: member
+    locations:
+      - classpath:db/migration/member
+
+tradex:
+  member:
+    crypto:
+      active-key-version: 1
+      aes-keys:
+        1: ${TRADEX_MEMBER_AES_KEY_V1}
+      hmac-key: ${TRADEX_MEMBER_HMAC_KEY}

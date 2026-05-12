@@ -1,4 +1,4 @@
-package com.zerith.tradexserver.bootstrap.exception
+package com.zerith.tradexserver.auth.interfaces.exception
 
 import com.zerith.tradexserver.auth.domain.exception.AccountLockedException
 import com.zerith.tradexserver.auth.domain.exception.AuthException
@@ -8,23 +8,16 @@ import com.zerith.tradexserver.auth.domain.exception.InvalidEmailException
 import com.zerith.tradexserver.auth.domain.exception.TokenInvalidException
 import com.zerith.tradexserver.auth.domain.exception.WeakPasswordException
 import com.zerith.tradexserver.common.response.BaseResponse
-import org.slf4j.LoggerFactory
+import org.springframework.core.Ordered
+import org.springframework.core.annotation.Order
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
-import com.zerith.tradexserver.member.domain.exception.MemberException
-import com.zerith.tradexserver.member.domain.exception.PhoneNumberAlreadyExistsException
-import com.zerith.tradexserver.instrument.domain.exception.InstrumentException
-import com.zerith.tradexserver.instrument.domain.exception.InstrumentNotFoundException
-import com.zerith.tradexserver.instrument.domain.exception.InstrumentNotTradableException
-
 
 @RestControllerAdvice
+@Order(Ordered.HIGHEST_PRECEDENCE)
 class AuthExceptionHandler {
-
-    private val log = LoggerFactory.getLogger(AuthExceptionHandler::class.java)
 
     @ExceptionHandler(InvalidCredentialException::class)
     fun handleInvalidCredential(e: InvalidCredentialException): ResponseEntity<BaseResponse<Unit>> {
@@ -73,55 +66,5 @@ class AuthExceptionHandler {
         return ResponseEntity
             .status(HttpStatus.UNAUTHORIZED)
             .body(BaseResponse.error("AUTH_FAILED", "invalid request"))
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException::class)
-    fun handleValidation(e: MethodArgumentNotValidException): ResponseEntity<BaseResponse<Unit>> {
-        return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(BaseResponse.error("VALIDATION_FAILED", "invalid request"))
-    }
-
-    @ExceptionHandler(Exception::class)
-    fun handleUnexpected(e: Exception): ResponseEntity<BaseResponse<Unit>> {
-        log.error("unexpected error", e)
-        return ResponseEntity
-            .status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(BaseResponse.error("INTERNAL_ERROR", "internal error"))
-    }
-
-    @ExceptionHandler(MemberException::class)
-    fun handleMember(e: MemberException): ResponseEntity<BaseResponse<Unit>> {
-        return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(BaseResponse.error("INVALID_REQUEST", "invalid request"))
-    }
-
-    @ExceptionHandler(PhoneNumberAlreadyExistsException::class)
-    fun handlePhoneExists(e: PhoneNumberAlreadyExistsException): ResponseEntity<BaseResponse<Unit>> {
-        return ResponseEntity
-            .status(HttpStatus.CONFLICT)
-            .body(BaseResponse.error("INVALID_REQUEST", "invalid request"))
-    }
-
-    @ExceptionHandler(InstrumentNotFoundException::class)
-    fun handleInstrumentNotFound(e: InstrumentNotFoundException): ResponseEntity<BaseResponse<Unit>> {
-        return ResponseEntity
-            .status(HttpStatus.NOT_FOUND)
-            .body(BaseResponse.error("INSTRUMENT_NOT_FOUND", "not found"))
-    }
-
-    @ExceptionHandler(InstrumentNotTradableException::class)
-    fun handleInstrumentNotTradable(e: InstrumentNotTradableException): ResponseEntity<BaseResponse<Unit>> {
-        return ResponseEntity
-            .status(HttpStatus.UNPROCESSABLE_ENTITY)
-            .body(BaseResponse.error("INSTRUMENT_NOT_TRADABLE", "invalid request"))
-    }
-
-    @ExceptionHandler(InstrumentException::class)
-    fun handleInstrument(e: InstrumentException): ResponseEntity<BaseResponse<Unit>> {
-        return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(BaseResponse.error("INSTRUMENT_INVALID_REQUEST", "invalid request"))
     }
 }
