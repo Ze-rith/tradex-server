@@ -13,4 +13,4 @@ set -a
 source .env
 set +a
 
-exec ./gradlew bootRun "$@"
+exec ./gradlew :bootstrap:bootRun "$@"
